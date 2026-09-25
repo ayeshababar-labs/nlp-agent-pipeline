@@ -4,7 +4,7 @@ from groq import Groq
 
 client = Groq()
 
-# This time the tool actually calls your Flask API
+# This time the tool actually calls Flask API
 def get_sentiment(text):
     response = requests.post(
         "http://localhost:5001/predict",
