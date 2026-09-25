@@ -4,22 +4,27 @@ An integrated system comprising a specialized sentiment analysis API and an agen
 
 ## System Architecture
 
-### 1. Sentiment Analysis API
-A production-ready microservice that provides sentiment classification.
+### 1. Text Analysis API
+A production-ready microservice that provides multiple forms of text intelligence.
 - **Core:** Built with Flask and HuggingFace Transformers.
-- **Model:** DistilBERT fine-tuned on SST-2 (`distilbert-base-uncased-finetuned-sst-2-english`).
+- **Sentiment Model:** DistilBERT fine-tuned on SST-2 (`distilbert-base-uncased-finetuned-sst-2-english`).
+- **Topic Classification:** Zero-shot topic classification using a cross-encoder model (`facebook/bart-large-mnli`) for labeling text into categories such as business, technology, sports, and politics.
+- **Keyword Extraction:** KeyBERT-based keyword and phrase extraction for identifying salient terms in a document or input string.
 - **Deployment:** Containerized via Docker and scalable using Gunicorn.
 
 ### 2. Agentic Layer
-An implementation of AI agents that treat the Sentiment API as an external tool.
-- **Orchestration:** Agents use LLMs to determine when to invoke the `/predict` endpoint to analyze text.
+An implementation of AI agents that treat the text analysis API as an external tool.
+- **Orchestration:** Agents use LLMs to determine when to invoke the API endpoints to analyze text.
 - **Providers:** Experimental implementations using Groq (cloud-based) and Ollama (local).
-- **Workflows:** Autonomous decision-making loops where the agent fetches sentiment data before generating a final synthesis or response.
+- **Workflows:** Autonomous decision-making loops where the agent fetches sentiment, topic, and keyword data before generating a final synthesis or response.
 
 ## Project Structure
-- `app/`: Model loading and prediction logic.
+- `app/`: Model loading and text analysis logic.
+- `app/predict.py`: Sentiment prediction logic.
+- `app/classifier.py`: Topic classification logic.
+- `app/keywords.py`: Keyword extraction logic.
 - `model/`: Trained model artifacts.
-- `server.py`: Flask API implementation.
+- `server.py`: Flask API implementation exposing sentiment, keyword, and classification endpoints.
 - `experiments/`: Agentic implementations:
     - `01_groq_hello.py` & `02_groq_tool.py`: Groq-based agent tool integration.
     - `03_ollama_tool.py` & `05_ollama_real_tool.py`: Local agent integration via Ollama.
@@ -91,6 +96,16 @@ python experiments/05_ollama_real_tool.py
 - **Endpoint:** `POST /predict`
 - **Request:** `{"text": "string"}`
 - **Response:** `{"text": "string", "sentiment": "positive/negative", "confidence": float}`
+
+### Extract Keywords
+- **Endpoint:** `POST /keywords`
+- **Request:** `{"text": "string"}`
+- **Response:** `{"text": "string", "keywords": [{"keyword": "string", "score": float}]}`
+
+### Classify Topic
+- **Endpoint:** `POST /classify`
+- **Request:** `{"text": "string"}`
+- **Response:** `{"text": "string", "label": "string", "score": float}`
 
 ### Health Check
 - **Endpoint:** `GET /health`
