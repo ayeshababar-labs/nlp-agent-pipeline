@@ -4,6 +4,7 @@ from app.predict import predict_sentiment
 from app.model import load_model
 from app.keywords import load_keybert_model, extract_keywords
 from app.classifier import load_classifier_model, classify_topic
+from app.agent import run_agent
 
 app = Flask(__name__)
 
@@ -42,6 +43,15 @@ def classify():
         return jsonify({"error": "Missing 'text' field"}), 400
 
     result = classify_topic(classifier_model, data["text"])
+    return jsonify(result)
+
+@app.route("/agent", methods=["POST"])
+def agent():
+    data = request.get_json()
+
+    if not data or "question" not in data or "text" not in data:
+        return jsonify({"Missing 'question' or 'text' field"}), 400
+    result = run_agent(data["question"], data["text"])
     return jsonify(result)
 
 if __name__ == "__main__":
