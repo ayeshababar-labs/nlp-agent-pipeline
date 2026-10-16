@@ -1,4 +1,4 @@
-# Agentic Sentiment Analysis System
+# NLP Agent Pipeline
 
 An integrated system comprising a specialized sentiment analysis API and an agentic layer that utilizes this API as a tool for autonomous reasoning and text analysis.
 
