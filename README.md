@@ -17,14 +17,17 @@ An implementation of AI agents that treat the text analysis API as an external t
 - **Orchestration:** Agents use LLMs to determine when to invoke the API endpoints to analyze text.
 - **Providers:** Experimental implementations using Groq (cloud-based) and Ollama (local).
 - **Workflows:** Autonomous decision-making loops where the agent fetches sentiment, topic, and keyword data before generating a final synthesis or response.
+- **Integrated agent endpoint:** `POST /agent` accepts a question and text, then uses a Groq-backed agent to call the sentiment, topic-classification, and keyword-extraction endpoints as needed.
 
 ## Project Structure
 - `app/`: Model loading and text analysis logic.
 - `app/predict.py`: Sentiment prediction logic.
 - `app/classifier.py`: Topic classification logic.
 - `app/keywords.py`: Keyword extraction logic.
+- `app/agent.py`: Groq-backed agent loop that selects and processes analysis tools.
+- `app/tools.py`: Tool definitions and functions that call the text analysis endpoints.
 - `model/`: Trained model artifacts.
-- `server.py`: Flask API implementation exposing sentiment, keyword, and classification endpoints.
+- `server.py`: Flask API implementation exposing sentiment, keyword, classification, and agent endpoints.
 - `experiments/`: Agentic implementations:
     - `01_groq_hello.py` & `02_groq_tool.py`: Groq-based agent tool integration.
     - `03_ollama_tool.py` & `05_ollama_real_tool.py`: Local agent integration via Ollama.
@@ -89,6 +92,13 @@ python experiments/03_ollama_tool.py
 python experiments/05_ollama_real_tool.py
 ```
 
+**Integrated agent endpoint:** Start the API with `python server.py`, set `GROQ_API_KEY`, then send a request:
+```bash
+curl -X POST http://localhost:5001/agent \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What is the sentiment and main topics of this text?","text":"The new iPhone has an amazing camera but the battery life is disappointing"}'
+```
+
 
 ## API Reference
 
@@ -106,6 +116,12 @@ python experiments/05_ollama_real_tool.py
 - **Endpoint:** `POST /classify`
 - **Request:** `{"text": "string"}`
 - **Response:** `{"text": "string", "label": "string", "score": float}`
+
+### Agent Analysis
+- **Endpoint:** `POST /agent`
+- **Request:** `{"question": "string", "text": "string"}`
+- **Response:** `{"response": "string", "tools_called": ["tool_name"]}`
+- The Groq-backed agent may call sentiment prediction, topic classification, and keyword extraction tools to answer the question.
 
 ### Health Check
 - **Endpoint:** `GET /health`
